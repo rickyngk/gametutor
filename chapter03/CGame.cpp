@@ -32,14 +32,7 @@ namespace GameTutor
 		this->Init();
 		while (m_isAlived)
 		{
-			if (m_isPaused)
-			{
-				CStateManagement::GetInstance()->Update(true);
-			}
-			else
-			{
-				CStateManagement::GetInstance()->Update(false);
-			}
+			CStateManagement::GetInstance()->Update(m_isPaused);
 			usleep(16.67*1000);
 		}
 		Destroy();
