@@ -13,7 +13,7 @@ namespace GameTutor
 			{
 				printf("[CStateManagement] Leave state %s \n", m_pCurrentState->GetId());
 
-#if SAVE_STATE_TRACE
+#if USE_STATE_TRACE
 				//save state tracking
 				if (!m_pStateTrace) 
 				{
@@ -29,7 +29,13 @@ namespace GameTutor
 				SetLastState(m_pCurrentState->GetId());
 
 				m_pCurrentState->Exit();
-				delete m_pCurrentState;
+
+				// by default, state will be always deleted, but USE_STATE_STACK
+				if (m_pCurrentState->GetDeleteAfterSwitchingFlag()) 
+				{
+					delete m_pCurrentState;
+					m_pCurrentState = 0;
+				}
 			}
 			if (m_pNextState) 
 			{
@@ -58,7 +64,7 @@ namespace GameTutor
 		m_pNextState = nextState;
 	}
 
-#if SAVE_STATE_TRACE
+#if USE_STATE_TRACE
 	void CStateManagement::CleanTrace() {
 		while (m_pStateTrace) {
 			CStateTrace* tmp = m_pStateTrace;
@@ -66,14 +72,44 @@ namespace GameTutor
 			delete tmp;
 		}
 	}
+#endif
 
-	CStateTraceEle CStateManagement::PopStateTrace() {
-		if (m_pStateTrace) {
-			CStateTrace* tmp = m_pStateTrace;
-			m_pStateTrace = m_pStateTrace->prev;
-			return tmp->val;
+#if USE_STATE_STACK
+	void CStateManagement::EmptyStateStack()
+	{
+		while (m_pStateStack) 
+		{
+			CStateStack *tmp = m_pStateStack;
+			m_pStateStack = m_pStateStack->prev;
+			delete tmp;
 		}
-		return 0;
+	}
+		
+	void CStateManagement::PushState(CState* state) 
+	{
+		if (!m_pStateStack) 
+		{
+			m_pStateStack = new CStateStack(m_pCurrentState);
+		}
+		else 
+		{
+			m_pStateStack = new CStateStack(m_pCurrentState, m_pStateStack);
+		}
+		m_pCurrentState->SetDeleteAfterSwitchingFlag(false); //disable delete state instance after switching
+		SwitchState(state);
+		printf("[CStateManagement] PushState %s \n", state->GetId());
+	}
+
+	void CStateManagement::PopState() 
+	{
+		if (m_pStateStack) 
+		{
+			CStateStack *tmp = m_pStateStack;
+			m_pStateStack = m_pStateStack->prev;
+			tmp->val->SetDeleteAfterSwitchingFlag(true); //allow delete state instance after switching
+			SwitchState(tmp->val);
+			printf("[CStateManagement] PopState %s \n", tmp->val->GetId());
+		}
 	}
 #endif
 }

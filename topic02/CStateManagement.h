@@ -4,18 +4,19 @@
 #include "CState.h"
 #include "macro.h"
 
-#define SAVE_STATE_TRACE 0
+#define USE_STATE_TRACE 0
+#define USE_STATE_STACK 1
 
 namespace GameTutor
 {
 
-#if SAVE_STATE_TRACE
-	template <typename T> class TCStateTrace { 
+#if SAVE_STATE_TRACE || USE_STATE_STACK
+	template <typename T> class TCStateStack { 
 		public:
 			int step;
 			T val;
-			TCStateTrace<T>* prev;
-			TCStateTrace(T _val, TCStateTrace<T>* _prev = 0): val(_val), prev(_prev) {
+			TCStateStack<T>* prev;
+			TCStateStack(T _val, TCStateStack<T>* _prev = 0): val(_val), prev(_prev) {
 				if (prev) {
 					step = prev->step + 1;
 				}
@@ -24,8 +25,16 @@ namespace GameTutor
 				}
 			}
 	}; 
+#endif
+
+#if USE_STATE_TRACE
 	typedef const char* CStateTraceEle;
-	typedef TCStateTrace<CStateTraceEle> CStateTrace;
+	typedef TCStateStack<CStateTraceEle> CStateTrace;
+#endif
+
+#if USE_STATE_STACK
+	typedef CState* CStateStackEle;
+	typedef TCStateStack<CStateStackEle> CStateStack;
 #endif
 
 	class CStateManagement
@@ -45,8 +54,11 @@ namespace GameTutor
 		CStateManagement():
 			m_pCurrentState(0), 
 			m_pNextState(0), 
-#if SAVE_STATE_TRACE
+#if USE_STATE_TRACE
 			m_pStateTrace(0),
+#endif
+#if USE_STATE_STACK
+			m_pStateStack(0),
 #endif
 			m_LastState(0) {}
 	protected:
@@ -57,12 +69,20 @@ namespace GameTutor
 		void Update(bool isPause);
 		void SwitchState(CState* nextState);
 
-#if SAVE_STATE_TRACE
+#if USE_STATE_TRACE
 	public:
 		void CleanTrace();
-		CStateTraceEle PopStateTrace();
 	protected:
 		CStateTrace* m_pStateTrace;
+#endif
+
+#if USE_STATE_STACK
+	public:
+		void EmptyStateStack();
+		void PushState(CState*);
+		void PopState();
+	protected:
+		CStateStack* m_pStateStack;
 #endif
 
 		PROP_READ_ONLY(const char *,LastState);
