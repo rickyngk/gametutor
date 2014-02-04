@@ -1,5 +1,6 @@
 #include "CStatePoster.h"
 #include "CStateManagement.h"
+#include "CStateMainMenu.h"
 #include "CGame.h"
 #include <stdio.h>
 
@@ -16,7 +17,7 @@ void CStatePoster::Update()
 {
 	if (m_iCount <= 1)
 	{
-		CGame::GetInstance()->Exit();
+		CStateManagement::GetInstance()->SwitchState(new CStateMainMenu());
 	}
 	m_iCount--;
 }

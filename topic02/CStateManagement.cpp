@@ -1,4 +1,4 @@
-#include "CStateManagement.h"
+#include "CStateManagement.h" 
 
 namespace GameTutor
 {
@@ -12,6 +12,22 @@ namespace GameTutor
 			if (m_pCurrentState) 
 			{
 				printf("[CStateManagement] Leave state %s \n", m_pCurrentState->GetId());
+
+#if SAVE_STATE_TRACE
+				//save state tracking
+				if (!m_pStateTrace) 
+				{
+					m_pStateTrace = new CStateTrace(m_pCurrentState->GetId());
+				}
+				else 
+				{
+					m_pStateTrace = new CStateTrace(m_pCurrentState->GetId(), m_pStateTrace);
+				}
+#endif
+
+				//save last state
+				SetLastState(m_pCurrentState->GetId());
+
 				m_pCurrentState->Exit();
 				delete m_pCurrentState;
 			}
@@ -41,4 +57,28 @@ namespace GameTutor
 		}
 		m_pNextState = nextState;
 	}
+
+#if SAVE_STATE_TRACE
+	void CStateManagement::CleanTrace() {
+		while (m_pStateTrace) {
+			CStateTrace* tmp = m_pStateTrace;
+			m_pStateTrace = m_pStateTrace->prev;
+			delete tmp;
+		}
+	}
+
+	CStateTraceEle CStateManagement::PopStateTrace() {
+		if (m_pStateTrace) {
+			CStateTrace* tmp = m_pStateTrace;
+			m_pStateTrace = m_pStateTrace->prev;
+			return tmp->val;
+		}
+		return 0;
+	}
+#endif
 }
+
+
+
+
+
