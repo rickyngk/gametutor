@@ -3,7 +3,7 @@
 #include "CStatePoster.h"
 #include <stdio.h>
 
-CStateLogo::CStateLogo():m_iCount(0), CState()
+CStateLogo::CStateLogo():m_iCount(0), CState("CStateLogo")
 {}
 
 void CStateLogo::Init()

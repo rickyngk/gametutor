@@ -1,5 +1,6 @@
 #ifndef __CSTATEMANAGEMENT_H__
 #define __CSTATEMANAGEMENT_H__
+#include <stdio.h>
 #include "CState.h"
 
 namespace GameTutor

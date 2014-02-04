@@ -11,11 +11,13 @@ namespace GameTutor
 		{
 			if (m_pCurrentState) 
 			{
+				printf("[CStateManagement] Leave state %s \n", m_pCurrentState->GetId());
 				m_pCurrentState->Exit();
 				delete m_pCurrentState;
 			}
 			if (m_pNextState) 
 			{
+				printf("[CStateManagement] Enter state %s \n", m_pNextState->GetId());
 				m_pNextState->Init();
 			}
 			m_pCurrentState = m_pNextState;
@@ -34,6 +36,9 @@ namespace GameTutor
 
 	void CStateManagement::SwitchState(CState* nextState)
 	{
+		if (m_pCurrentState) {
+			printf("[CStateManagement] request switching state from %s to %s \n", m_pCurrentState->GetId(), nextState->GetId());
+		}
 		m_pNextState = nextState;
 	}
 }

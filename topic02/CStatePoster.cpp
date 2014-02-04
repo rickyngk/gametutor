@@ -3,9 +3,8 @@
 #include "CGame.h"
 #include <stdio.h>
 
-CStatePoster::CStatePoster(): m_iCount(0), CState()
-{
-}
+CStatePoster::CStatePoster(): m_iCount(0), CState("CStatePoster")
+{}
 
 void CStatePoster::Init()
 {
